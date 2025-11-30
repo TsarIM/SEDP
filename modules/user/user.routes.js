@@ -7,7 +7,11 @@ router.post('/register', userController.register);
 router.post('/login', userController.login);
 router.get('/profile', authenticate, userController.getProfile);
 router.patch('/profile', authenticate, userController.updateProfile);
+router.delete('/profile', authenticate, userController.deleteProfile);
+
 router.post('/addresses', authenticate, userController.addAddress);
 router.get('/addresses', authenticate, userController.listAddresses);
+router.patch('/addresses/:addressId/default', authenticate, userController.setDefaultAddress);
+router.delete('/addresses/:addressId', authenticate, userController.removeAddress);
 
 module.exports = router;

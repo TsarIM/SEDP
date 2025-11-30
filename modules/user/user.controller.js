@@ -38,6 +38,15 @@ class UserController {
     }
   }
 
+  async deleteProfile(req, res) {
+    try {
+      const result = await userService.deleteUser(req.user.userId);
+      res.status(200).json(result);
+    } catch (error) {
+      res.status(400).json({ error: error.message });
+    }
+  }
+
   async addAddress(req, res) {
     try {
       const address = await userService.addAddress(req.user.userId, req.body);
@@ -51,6 +60,26 @@ class UserController {
     try {
       const addresses = await userService.listAddresses(req.user.userId);
       res.status(200).json(addresses);
+    } catch (error) {
+      res.status(400).json({ error: error.message });
+    }
+  }
+
+  async setDefaultAddress(req, res) {
+    try {
+      const { addressId } = req.params;
+      const address = await userService.setDefaultAddress(req.user.userId, addressId);
+      res.status(200).json(address);
+    } catch (error) {
+      res.status(400).json({ error: error.message });
+    }
+  }
+
+  async removeAddress(req, res) {
+    try {
+      const { addressId } = req.params;
+      const result = await userService.removeAddress(req.user.userId, addressId);
+      res.status(200).json(result);
     } catch (error) {
       res.status(400).json({ error: error.message });
     }

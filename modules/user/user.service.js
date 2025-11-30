@@ -75,11 +75,12 @@ class UserService {
 
   async updateUser(userId, updates) {
     const db = getDB();
-    const { email, phone } = updates;
+    const { email, phone, name } = updates;
 
     const updateData = {
       ...(email && { email }),
       ...(phone && { phone }),
+      ...(name && { name }),
       updated_at: new Date()
     };
 
@@ -95,6 +96,22 @@ class UserService {
 
     delete result.value.password_hash;
     return result.value;
+  }
+
+  async deleteUser(userId) {
+    const db = getDB();
+    
+    // Delete user's addresses first
+    await db.collection('addresses').deleteMany({ user_id: new ObjectId(userId) });
+    
+    // Delete user
+    const result = await db.collection('users').deleteOne({ _id: new ObjectId(userId) });
+
+    if (result.deletedCount === 0) {
+      throw new Error('User not found');
+    }
+
+    return { message: 'User deleted successfully' };
   }
 
   async addAddress(userId, addressData) {
@@ -130,6 +147,44 @@ class UserService {
       .toArray();
 
     return addresses;
+  }
+
+  async setDefaultAddress(userId, addressId) {
+    const db = getDB();
+
+    // First, unset all defaults
+    await db.collection('addresses').updateMany(
+      { user_id: new ObjectId(userId) },
+      { $set: { is_default: false } }
+    );
+
+    // Set the specified address as default
+    const result = await db.collection('addresses').findOneAndUpdate(
+      { _id: new ObjectId(addressId), user_id: new ObjectId(userId) },
+      { $set: { is_default: true } },
+      { returnDocument: 'after' }
+    );
+
+    if (!result.value) {
+      throw new Error('Address not found');
+    }
+
+    return result.value;
+  }
+
+  async removeAddress(userId, addressId) {
+    const db = getDB();
+    
+    const result = await db.collection('addresses').deleteOne({
+      _id: new ObjectId(addressId),
+      user_id: new ObjectId(userId)
+    });
+
+    if (result.deletedCount === 0) {
+      throw new Error('Address not found');
+    }
+
+    return { message: 'Address removed successfully' };
   }
 }
 
