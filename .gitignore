@@ -1,0 +1,12 @@
+# Environment variables
+.env
+
+# Dependencies
+node_modules/
+
+# Mac files
+.DS_Store
+
+# Logs
+*.log
+npm-debug.log*
