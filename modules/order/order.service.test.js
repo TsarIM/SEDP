@@ -1,34 +1,27 @@
-// order.service.test.js
 
 const { ObjectId } = require('mongodb');
 
-// Mock the database
+
 const mockDB = {
   collection: jest.fn()
 };
 
-// Mock getDB function BEFORE requiring the service
+
 jest.mock('../../config/db', () => ({
   getDB: () => mockDB
 }));
 
-// Import the orderService (it's already an instance!)
+
 const orderService = require('./order.service');
 
 describe('OrderService Tests', () => {
   
   beforeEach(() => {
-    // Clear all mocks before each test
     jest.clearAllMocks();
   });
-
-  // ==================== ADD ITEM TO CART TESTS ====================
   
   describe('addItemToCart()', () => {
-    
-    /**
-     * TEST CASE 1: Menu item not found
-     */
+
     test('TC1: Should throw error when menu item not found', async () => {
       mockDB.collection.mockReturnValue({
         findOne: jest.fn().mockResolvedValue(null)
@@ -42,9 +35,6 @@ describe('OrderService Tests', () => {
       ).rejects.toThrow('Menu item not found');
     });
 
-    /**
-     * TEST CASE 2: Menu item not available
-     */
     test('TC2: Should throw error when menu item not available', async () => {
       const mockMenuItem = {
         _id: new ObjectId(),
@@ -66,9 +56,6 @@ describe('OrderService Tests', () => {
       ).rejects.toThrow('Menu item is not available');
     });
 
-    /**
-     * TEST CASE 3: Successfully add item to new cart
-     */
     test('TC3: Should create new cart and add item successfully', async () => {
       const userId = new ObjectId();
       const menuItemId = new ObjectId();
@@ -131,14 +118,9 @@ describe('OrderService Tests', () => {
       expect(result.total_cents).toBe(1500);
     });
   });
-
-  // ==================== REMOVE ITEM FROM CART TESTS ====================
   
   describe('removeItemFromCart()', () => {
-    
-    /**
-     * TEST CASE 4: Cart not found
-     */
+
     test('TC4: Should throw error when cart not found', async () => {
       const cartsCollection = {
         findOne: jest.fn().mockResolvedValue(null)
@@ -154,9 +136,6 @@ describe('OrderService Tests', () => {
       ).rejects.toThrow('Cart not found');
     });
 
-    /**
-     * TEST CASE 5: Item not in cart
-     */
     test('TC5: Should throw error when item not found in cart', async () => {
       const mockCartId = new ObjectId();
       const cartsCollection = {
@@ -181,9 +160,6 @@ describe('OrderService Tests', () => {
       ).rejects.toThrow('Item not found in cart');
     });
 
-    /**
-     * TEST CASE 6: Successfully remove item
-     */
     test('TC6: Should successfully remove item from cart', async () => {
       const mockCartId = new ObjectId();
       const userId = new ObjectId();
@@ -217,14 +193,9 @@ describe('OrderService Tests', () => {
       expect(result.total_cents).toBe(0);
     });
   });
-
-  // ==================== CANCEL ORDER TESTS ====================
   
   describe('cancelOrder()', () => {
     
-    /**
-     * TEST CASE 7: Order not found
-     */
     test('TC7: Should throw error when order not found', async () => {
       const ordersCollection = {
         findOne: jest.fn().mockResolvedValue(null)
@@ -240,9 +211,7 @@ describe('OrderService Tests', () => {
       ).rejects.toThrow('Order not found');
     });
 
-    /**
-     * TEST CASE 8: Cannot cancel delivered order
-     */
+
     test('TC8: Should throw error when trying to cancel delivered order', async () => {
       const mockOrder = {
         _id: new ObjectId(),
@@ -261,9 +230,6 @@ describe('OrderService Tests', () => {
       ).rejects.toThrow('Cannot cancel order with status: DELIVERED');
     });
 
-    /**
-     * TEST CASE 9: Cannot cancel order out for delivery
-     */
     test('TC9: Should throw error when order is out for delivery', async () => {
       const mockOrder = {
         _id: new ObjectId(),
@@ -282,9 +248,6 @@ describe('OrderService Tests', () => {
       ).rejects.toThrow('Cannot cancel order that is out for delivery');
     });
 
-    /**
-     * TEST CASE 10: Successfully cancel order
-     */
     test('TC10: Should successfully cancel order', async () => {
       const mockOrderId = new ObjectId();
       const mockUserId = new ObjectId();
@@ -318,13 +281,9 @@ describe('OrderService Tests', () => {
     });
   });
 
-  // ==================== PROCESS PAYMENT TESTS ====================
   
   describe('processPayment()', () => {
-    
-    /**
-     * TEST CASE 11: Order not found for payment
-     */
+
     test('TC11: Should throw error when order not found', async () => {
       const ordersCollection = {
         findOne: jest.fn().mockResolvedValue(null)
@@ -341,9 +300,6 @@ describe('OrderService Tests', () => {
       ).rejects.toThrow('Order not found');
     });
 
-    /**
-     * TEST CASE 12: Payment already completed
-     */
     test('TC12: Should throw error when payment already completed', async () => {
       const mockOrder = {
         _id: new ObjectId(),
@@ -366,9 +322,7 @@ describe('OrderService Tests', () => {
       ).rejects.toThrow('Payment already completed');
     });
 
-    /**
-     * TEST CASE 13: Invalid card number
-     */
+
     test('TC13: Should throw error for invalid card number', async () => {
       const mockOrder = {
         _id: new ObjectId(),
@@ -393,9 +347,7 @@ describe('OrderService Tests', () => {
       ).rejects.toThrow('Invalid card number');
     });
 
-    /**
-     * TEST CASE 14: Invalid UPI ID
-     */
+
     test('TC14: Should throw error for invalid UPI ID', async () => {
       const mockOrder = {
         _id: new ObjectId(),
@@ -420,9 +372,7 @@ describe('OrderService Tests', () => {
       ).rejects.toThrow('Invalid UPI ID');
     });
 
-    /**
-     * TEST CASE 15: Successful UPI payment
-     */
+
     test('TC15: Should successfully process UPI payment', async () => {
       const mockOrderId = new ObjectId();
       const mockUserId = new ObjectId();
@@ -453,13 +403,9 @@ describe('OrderService Tests', () => {
     });
   });
 
-  // ==================== GET ORDER BY ID TEST ====================
   
   describe('getOrderById()', () => {
-    
-    /**
-     * TEST CASE 16: Order not found
-     */
+
     test('TC16: Should throw error when order not found', async () => {
       const ordersCollection = {
         findOne: jest.fn().mockResolvedValue(null)
@@ -475,9 +421,7 @@ describe('OrderService Tests', () => {
       ).rejects.toThrow('Order not found');
     });
 
-    /**
-     * TEST CASE 17: Successfully get order
-     */
+
     test('TC17: Should successfully retrieve order', async () => {
       const mockOrder = {
         _id: new ObjectId(),
